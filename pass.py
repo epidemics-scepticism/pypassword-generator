@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 #    Copyright (C) 2016 cacahuatl < cacahuatl at autistici dot org >
 #
@@ -18,18 +18,21 @@
 import random, math, argparse
 class password_generator():
     loaded = False
+
     def __init__(self, wf='words', wpp=5):
         """Get entropy source and load wordlist"""
         self.entropy = random.SystemRandom()
         self.w = open(wf).read().strip().split('\n')
         self.wpp = wpp
         self.loaded = True
+
     def estimate_entropy(self):
         """Work out the worst case scenario entropy estimate"""
         if self.loaded:
             return int(math.floor(math.log(len(self.w) ** int(self.wpp), 2)))
         else:
             raise Exception('Generator is not loaded.')
+
     def generate(self):
         """Generate a passphrase from the wordlist"""
         if self.loaded:
@@ -39,15 +42,20 @@ class password_generator():
             return ' '.join(pw)
         else:
             raise Exception('Generator is not loaded.')
+
     def __str__(self):
         return self.generate()
+
 if __name__ == '__main__':
+    from os.path import realpath, dirname
+    from sys import argv
+    default_wordlist = realpath(dirname(argv[0])) + "/eff_words"
     parser = argparse.ArgumentParser(description="Password Generator")
     parser.add_argument("--count", "-c", default=5, type=int,
             help="Words per passphrase")
-    parser.add_argument("--word-list", "-w", default="words", type=str,
+    parser.add_argument("--word-list", "-w", default=default_wordlist, type=str,
             help="Word list to generate from")
     args = parser.parse_args()
     p = password_generator(wf=args.word_list, wpp=args.count)
-    print 'Estimated %d bits of entropy' % p.estimate_entropy()
-    print '%s' % p.generate()
+    print('Estimated {} bits of entropy'.format(p.estimate_entropy()))
+    print('{}'.format(p.generate()))
